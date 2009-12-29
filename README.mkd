@@ -1,3 +1,8 @@
+A Plurk API Module for CodeIgniter
+===============
+
+Welcome to the home of the Plurk API Library, a project that will help you to get all your plurk data and implement your application with Plurk data.
+
 Introduction of Plurk API
 ===============
 Plurk API provides a standard way of accessing and implementing applications on top of the Plurk platform. The API is a simple HTTP API that can be accessed from any language that supports creation of HTTP requests.
@@ -7,9 +12,19 @@ ref : http://www.plurk.com/API
 INSTALLATION
 ===============
 
+download all file from this site.
+    $ http://github.com/appleboy/CodeIgniter-Plurk-API/archives/master
+    $ git://github.com/appleboy/CodeIgniter-Plurk-API.git 
+
 Reference Implementations:
 ===============
 
     * php-plurk-api: PHP implementation of this API http://code.google.com/p/php-plurk-api/
     * pyplurk: Python implementation of this API https://code.google.com/p/pyplurk/ 
 
+COPYRIGHT AND LICENCE
+===============
+
+Copyright (C) 2009 Bo-Yi 吳柏毅 ( appleboy )
+
+This program is free software; you can redistribute it and/or modify it under the same terms as PHP CodeIgniter itself.
