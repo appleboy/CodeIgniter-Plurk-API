@@ -12,9 +12,30 @@ ref : http://www.plurk.com/API
 INSTALLATION
 ===============
 
-download all file from this site.
+Download all file from this site.
     $ http://github.com/appleboy/CodeIgniter-Plurk-API/archives/master
-    $ git://github.com/appleboy/CodeIgniter-Plurk-API.git 
+    $ git://github.com/appleboy/CodeIgniter-Plurk-API.git
+
+Copy some files into directory.
+    $ copy config/plurk_config.php your_application/config/
+    $ copy config/plurk_constant.php your_application/config/
+    $ copy libraries/Common.php your_application/libraries/
+    $ copy libraries/Plurk.php your_application/libraries/
+
+Create logs directory, and chmod 755 directory
+    $ mkdir your_application/logs
+    $ chmod 755 your_application/logs
+    $ chown www:www your_application/logs
+
+Edit config/plurk_config.php, and configure your api key, plurk username, and plurk password
+    $config['api_key'] = "xxxxx";
+    $config['username'] = "xxxxx";
+    $config['password'] = "xxxxx";
+
+Test your controller file: welcome.php
+    http://localhost/welcome      
+      
+ 
 
 Reference Implementations:
 ===============
