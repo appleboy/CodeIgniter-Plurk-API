@@ -48,11 +48,11 @@ Class Common {
 	 */
 	function log($message = '')
 	{
-        if(!file_exists(PLURK_LOG_PATH)) 
-        {
-            touch(PLURK_LOG_PATH);
-        } 
-        $source = file_get_contents(PLURK_LOG_PATH);
+		if(!file_exists(PLURK_LOG_PATH)) 
+		{
+			touch(PLURK_LOG_PATH);
+		} 
+		$source = file_get_contents(PLURK_LOG_PATH);
 		$source .= date("Y-m-d H:i:s - ") . $message . "\n";
 		file_put_contents(PLURK_LOG_PATH, $source);
 	}
