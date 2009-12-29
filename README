@@ -1,6 +1,11 @@
+Welcome Plurk API of CodeIgniter Application Development
 
-Implementations:
+Reference Implementations:
+===============
 
     * php-plurk-api: PHP implementation of this API http://code.google.com/p/php-plurk-api/
     * pyplurk: Python implementation of this API https://code.google.com/p/pyplurk/     
         
+INSTALLATION
+===============
+
