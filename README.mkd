@@ -43,6 +43,6 @@ Reference Implementations:
 COPYRIGHT AND LICENCE
 ===============
 
-Copyright (C) 2009 Bo-Yi Wu 吳柏毅 ( appleboy )
+Copyright (C) 2009 ~ 2010 Bo-Yi Wu 吳柏毅 ( appleboy )
 
 This program is free software; you can redistribute it and/or modify it under the same terms as CodeIgniter itself.
