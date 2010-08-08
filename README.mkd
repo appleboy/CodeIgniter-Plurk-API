@@ -19,7 +19,6 @@ Download all file from this site.
 Copy some files into directory.
     $ copy config/plurk_config.php your_application/config/
     $ copy config/plurk_constant.php your_application/config/
-    $ copy libraries/Common.php your_application/libraries/
     $ copy libraries/Plurk.php your_application/libraries/
 
 Create logs directory, and chmod 755 directory
