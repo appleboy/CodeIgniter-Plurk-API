@@ -20,6 +20,7 @@ define('PLURK_AGENT', 'php-plurk-api agent');
  *  /API/Users/logout
  *  /API/Users/update
  *  /API/Users/updatePicture
+ *  /API/Users/getKarmaStats 
  *
  */
 
@@ -28,6 +29,7 @@ define('PLURK_LOGIN', 'http://www.plurk.com/API/Users/login');
 define('PLURK_LOGOUT', 'http://www.plurk.com/API/Users/logout');
 define('PLURK_UPDATE', 'http://www.plurk.com/API/Users/update');
 define('PLURK_UPDATE_PICTURE', 'http://www.plurk.com/API/Users/updatePicture');
+define('PLURK_GET_KARMASTATS', 'http://www.plurk.com/API/Users/getKarmaStats');
 
 /**
  *  Real time notifications
