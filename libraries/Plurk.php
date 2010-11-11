@@ -112,17 +112,13 @@ Class Plurk {
 	{
 		(isset($this->log_path)) ? $log_path = $this->log_path : $log_path = PLURK_LOG_PATH;
 
-		if( ! file_exists(PLURK_LOG_PATH)) 	touch(PLURK_LOG_PATH);
+		if( ! file_exists(PLURK_LOG_PATH))	touch(PLURK_LOG_PATH);
 
 		$date = date("Y-m-d H:i:s");
 		$username = $this->username;
 		$array = print_r($this->post_array, TRUE);
-		$class = __CLASS__;
-		$method = __METHOD__;
-		$function = __FUNCTION__;
 
-		error_log("date: $date\nusername: $username\nmessage: $message\ndata_dump: $array\nclass: $class\nmethod: $method\nfunction: $function\n", 3, $log_path);
-
+		error_log("date: $date\nusername: $username\nmessage: $message\ndata_dump: $array\n", 3, $log_path);
 	}
 
 	/**
@@ -203,6 +199,8 @@ Class Plurk {
 	 */
 	function set_cookie_path($cookie_path = NULL)
 	{
+		if( ! file_exists($cookie_path))	touch($cookie_path);
+
 		$this->cookie_path = $cookie_path;
 	}
 
@@ -417,33 +415,23 @@ Class Plurk {
 	 * You won't get notifications on responses that the logged in user adds, but you will get notifications for new plurks.
 	 *
 	 * @param string $comet_server full path with channel name
-	 * @param string $channel_name You get this from /API/Realtime/getUserChannel channel_name parameter.
-	 * @param string $offset The new profile image.
+	 * @param string $new_offset only fetch new messages from a given offset.  .
 	 * @return JSON object
 	 */
-	function realtime_get_commet_channel($comet_server = NULL, $channel_name = NULL, $offset = NULL)
+	function realtime_get_commet_channel($comet_server = NULL, $new_offset = NULL)
 	{
+
+		$comet_url = $comet_server . '&offset=' . $new_offset;
 		/**
-		 *
-		 * the first param "$comet_server" should look like
+		 * the "$comet_url" should look like
 		 * http://comet03.plurk.com/comet/1235515351741/?channel=generic-4-f733d8522327edf87b4d1651e6395a6cca0807a0
-		 *
 		 */
 
-		$array = array(
-			'channel_name' => $channel,
-			'offset'       => $offset
-		);
-
 		$ch = curl_init();
-
-		curl_setopt($ch, CURLOPT_URL, $comet_server);
+		curl_setopt($ch, CURLOPT_URL, $comet_url);
 		curl_setopt($ch, CURLOPT_POST, TRUE);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($array));
-
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
 		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
-
 		curl_setopt($ch, CURLOPT_USERAGENT, PLURK_AGENT);
 
 		(isset($this->cookie_path)) ? $cookie_path = $this->cookie_path : $cookie_path = PLURK_COOKIE_PATH;
@@ -472,7 +460,7 @@ Class Plurk {
 	{
 		if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
 
-		$offset = (isset($offset)) ? $offset : array_shift(explode("+", date("c", $offset)));
+		$offset = array_shift(explode("+", date("c", $offset)));
 
 		$array = array(
 			'api_key' => $this->api_key,
@@ -494,7 +482,7 @@ Class Plurk {
 	{
 		if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
 
-		$offset = (isset($offset)) ? $offset : array_shift(explode("+", date("c", $offset)));
+		$offset = array_shift(explode("+", date("c", $offset)));
 
 		$array = array(
 			'api_key' => $this->api_key,
@@ -504,7 +492,7 @@ Class Plurk {
 	}
 
 	/**
-	 * function get_plurks
+	 * function get_plurk
 	 *
 	 * @param int $plurk_id The unique id of the plurk. Should be passed as a number, and not base 36 encoded.
 	 * @return JSON object
@@ -527,18 +515,19 @@ Class Plurk {
 	 *
 	 * @param time $offset Return plurks older than offset, use timestamp.
 	 * @param int $limit How many plurks should be returned? Default is 20.
-	 * @param int $only_user The numeric ID of the user who's plurks should be returned.
+	 * @param boolean $only_user Setting it to true will only return user plurks.
 	 * @param boolean $only_responded Setting it to true will only return responded plurks.
 	 * @param boolean $only_private Setting it to true will only return private plurks.
+	 * @param boolean $only_favorite Setting it to true will only return favorite plurks.
 	 * @return JSON object
 	 * @see /API/Timeline/getPlurks
 	 */
-	function get_plurks($offset = NULL, $limit = 20, $only_user = NULL, $only_responded = NULL, $only_private = NULL)
+	 function get_plurks($offset = NULL, $limit = 20, $only_user = NULL, $only_responded = NULL, $only_private = NULL, $only_favorite = NULL)
 	{
 		if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
 
-		if( ! isset($offset)) $offset = date('c');
-		/* format 2010-01-18T11:24:43+00:00 */
+		$offset = array_shift(explode("+", date("c", $offset)));;
+		/* format 2010-01-18T11:24:43 */
 
 		$array = array(
 			'api_key'  => $this->api_key,
@@ -549,6 +538,7 @@ Class Plurk {
 		if(isset($only_user)) $array['only_user'] = $only_user;
 		if(isset($only_responded)) $array['only_responded'] = $only_responded;
 		if(isset($only_private)) $array['only_private'] = $only_private;
+		if(isset($only_favorite)) $array['only_favorite'] = $only_favorite;
 
 		return $this->plurk(PLURK_TIMELINE_GET_PLURKS, $array);
 	}
@@ -705,6 +695,48 @@ Class Plurk {
 		);
 
 		$result = $this->plurk(PLURK_TIMELINE_UNMUTE_PLURKS, $array);
+
+		return ($this->http_status == '200') ? TRUE : FALSE;
+	}
+
+	/**
+	* function favorite_plurk
+	*
+	* @param $ids The plurk ids, eg. array(123,456,789)
+	* @return boolean
+	* @see /API/Timeline/favoritePlurks
+	*/
+	function favorite_plurk($ids)
+	{
+		if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
+
+		$array = array(
+			'api_key' => $this->api_key,
+			'ids'     => json_encode($ids),
+		);
+
+		$this->plurk(PLURK_TIMELINE_FAVORITE_PLURKS, $array);
+
+		return ($this->http_status == '200') ? TRUE : FALSE;
+	}
+
+	/**
+	* function unfavorite_plurk
+	*
+	* @param $ids The plurk ids, eg. array(123,456,789)
+	* @return boolean
+	* @see /API/Timeline/unfavoritePlurks
+	*/
+	function unfavorite_plurk($ids)
+	{
+		if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
+
+		$array = array(
+			'api_key' => $this->api_key,
+			'ids'     => json_encode($ids),
+		);
+
+		$this->plurk(PLURK_TIMELINE_UNFAVORITE_PLURKS, $array);
 
 		return ($this->http_status == '200') ? TRUE : FALSE;
 	}

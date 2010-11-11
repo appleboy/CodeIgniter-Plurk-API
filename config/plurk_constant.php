@@ -1,25 +1,27 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 /**
- *  @desc: URLs setting
- *  @see: http://www.plurk.com/API
- *  
- **/
-define('BASE_PATH', dirname(__FILE__) . DIRECTORY_SEPA
-define('PLURK_COOKIE_PATH', APPPATH . 'logs/cookie');
-define('PLURK_LOG_PATH', APPPATH . 'logs/plurk_log');
+ * for php-plurk-api config
+ * @package php-plurk-api
+ *
+ */
+
+define('BASE_PATH', dirname(__FILE__) . DIRECTORY_SEPARATOR );
+define('PLURK_COOKIE_PATH', BASE_PATH . 'cookie');
+define('PLURK_LOG_PATH', BASE_PATH . 'log');
+
 define('PLURK_NOT_LOGIN', 'You are not login.');
 define('PLURK_AGENT', 'php-plurk-api agent');
 
 /**
-*  Users
-*  /API/Users/register
-*  /API/Users/login
-*  /API/Users/logout
-*  /API/Users/update
-*  /API/Users/updatePicture
-*
-*/
+ *  Users
+ *  /API/Users/register
+ *  /API/Users/login
+ *  /API/Users/logout
+ *  /API/Users/update
+ *  /API/Users/updatePicture
+ *
+ */
 
 define('PLURK_REGISTER', 'http://www.plurk.com/API/Users/register');
 define('PLURK_LOGIN', 'http://www.plurk.com/API/Users/login');
@@ -28,19 +30,19 @@ define('PLURK_UPDATE', 'http://www.plurk.com/API/Users/update');
 define('PLURK_UPDATE_PICTURE', 'http://www.plurk.com/API/Users/updatePicture');
 
 /**
-*  Real time notifications
-*  /API/Realtime/getUserChannel
-*
-*/
+ *  Real time notifications
+ *  /API/Realtime/getUserChannel
+ *
+ */
 
 define('PLURK_REALTIME_GET_USER_CHANNEL', 'http://www.plurk.com/API/Realtime/getUserChannel');
 
 /**
-*  Polling
-*  /API/Polling/getPlurks
-*  /API/Polling/getUnreadCount
-*
-*/
+ *  Polling
+ *  /API/Polling/getPlurks
+ *  /API/Polling/getUnreadCount
+ *
+ */
 
 define('PLURK_POLLING_GET_PLURK', 'http://www.plurk.com/API/Polling/getPlurks');
 define('PLURK_POLLING_GET_UNREAD_COUNT', 'http://www.plurk.com/API/Polling/getUnreadCount');
@@ -68,6 +70,8 @@ define('PLURK_TIMELINE_PLURK_DELETE', 'http://www.plurk.com/API/Timeline/plurkDe
 define('PLURK_TIMELINE_PLURK_EDIT', 'http://www.plurk.com/API/Timeline/plurkEdit');
 define('PLURK_TIMELINE_MUTE_PLURKS', 'http://www.plurk.com/API/Timeline/mutePlurks');
 define('PLURK_TIMELINE_UNMUTE_PLURKS', 'http://www.plurk.com/API/Timeline/unmutePlurks');
+define('PLURK_TIMELINE_FAVORITE_PLURKS', 'http://www.plurk.com/API/Timeline/favoritePlurks');
+define('PLURK_TIMELINE_UNFAVORITE_PLURKS', 'http://www.plurk.com/API/Timeline/unfavoritePlurks');
 define('PLURK_TIMELINE_MARK_AS_READ', 'http://www.plurk.com/API/Timeline/markAsRead');
 define('PLURK_TIMELINE_UPLOAD_PICTURE', 'http://www.plurk.com/API/Timeline/uploadPicture');
 
@@ -116,18 +120,18 @@ define('PLURK_SET_FOLLOWING','http://www.plurk.com/API/FriendsFans/setFollowing'
 define('PLURK_GET_COMPLETION','http://www.plurk.com/API/FriendsFans/getCompletion');
 
 /**
-*  Alerts
-*  General data structures
-*  /API/Alerts/getActive
-*  /API/Alerts/getHistory
-*  /API/Alerts/addAsFan
-*  /API/Alerts/addAllAsFan
-*  /API/Alerts/addAllAsFriends
-*  /API/Alerts/addAsFriend
-*  /API/Alerts/denyFriendship
-*  /API/Alerts/removeNotification
-*
-*/
+ *  Alerts
+ *  General data structures
+ *  /API/Alerts/getActive
+ *  /API/Alerts/getHistory
+ *  /API/Alerts/addAsFan
+ *  /API/Alerts/addAllAsFan
+ *  /API/Alerts/addAllAsFriends
+ *  /API/Alerts/addAsFriend
+ *  /API/Alerts/denyFriendship
+ *  /API/Alerts/removeNotification
+ *
+ */
 
 define('PLURK_GET_ACTIVE','http://www.plurk.com/API/Alerts/getActive');
 define('PLURK_GET_HISTORY','http://www.plurk.com/API/Alerts/getHistory');
