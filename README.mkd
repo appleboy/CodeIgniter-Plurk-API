@@ -22,9 +22,9 @@ Copy some files into directory.
     $ copy libraries/Plurk.php your_application/libraries/
 
 Create logs directory, and chmod 755 directory
-    $ mkdir your_application/logs
-    $ chmod 755 your_application/logs
-    $ chown www:www your_application/logs
+    $ mkdir your_application/config/logs
+    $ chmod 755 your_application/config/logs
+    $ chown www:www your_application/config/logs
 
 Edit config/plurk_config.php, and configure your api key, plurk username, and plurk password
     $config['api_key'] = "xxxxx";
