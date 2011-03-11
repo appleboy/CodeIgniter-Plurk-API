@@ -17,6 +17,7 @@ Download all file from this site.
     $ git://github.com/appleboy/CodeIgniter-Plurk-API.git
 
 Copy some files into directory.
+    $ copy controllers/plurk_test.php your_application/controllers/
     $ copy config/plurk_config.php your_application/config/
     $ copy config/plurk_constant.php your_application/config/
     $ copy libraries/Plurk.php your_application/libraries/
@@ -38,6 +39,6 @@ Reference Implementations:
 COPYRIGHT AND LICENCE
 ===============
 
-Copyright (C) 2009 ~ 2011 Bo-Yi Wu 吳柏毅 ( appleboy )
+Copyright (C) 2009 ~ 2011 Bo-Yi Wu 吳柏毅 ( Bo-Yi Wu )
 
 This program is free software; you can redistribute it and/or modify it under the same terms as CodeIgniter itself.
