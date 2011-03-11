@@ -21,18 +21,13 @@ Copy some files into directory.
     $ copy config/plurk_constant.php your_application/config/
     $ copy libraries/Plurk.php your_application/libraries/
 
-Create logs directory, and chmod 755 directory
-    $ mkdir your_application/config/logs
-    $ chmod 755 your_application/config/logs
-    $ chown www:www your_application/config/logs
-
 Edit config/plurk_config.php, and configure your api key, plurk username, and plurk password
-    $config['api_key'] = "xxxxx";
-    $config['username'] = "xxxxx";
-    $config['password'] = "xxxxx";
+    $config['plurk_api_key'] = "xxxxx";
+    $config['plurk_username'] = "xxxxx";
+    $config['plurk_password'] = "xxxxx";
 
-Test your controller file: welcome.php
-    http://localhost/welcome      
+Test your controller file: plurk_test.php
+    http://localhost/plurk_test
       
 Reference Implementations:
 ===============
@@ -43,6 +38,6 @@ Reference Implementations:
 COPYRIGHT AND LICENCE
 ===============
 
-Copyright (C) 2009 ~ 2010 Bo-Yi Wu 吳柏毅 ( appleboy )
+Copyright (C) 2009 ~ 2011 Bo-Yi Wu 吳柏毅 ( appleboy )
 
 This program is free software; you can redistribute it and/or modify it under the same terms as CodeIgniter itself.
