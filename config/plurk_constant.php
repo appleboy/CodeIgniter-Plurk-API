@@ -7,7 +7,7 @@
  */
 
 define('BASE_PATH', dirname(__FILE__) . DIRECTORY_SEPARATOR );
-define('PLURK_COOKIE_PATH', BASE_PATH . 'logs/cookie');
+define('PLURK_COOKIE_PATH', APPPATH . 'logs/cookie');
 define('PLURK_LOG_PATH', APPPATH . 'logs/plurk_log');
 
 define('PLURK_NOT_LOGIN', 'You are not login.');
