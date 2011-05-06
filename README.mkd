@@ -28,7 +28,7 @@ Edit config/plurk_config.php, and configure your api key, plurk username, and pl
     $config['plurk_password'] = "xxxxx";
 
 Test your controller file: plurk_test.php
-    http://localhost/plurk_test
+    http://localhost/CodeIgniter/index.php/plurk_test
       
 Reference Implementations:
 ===============
