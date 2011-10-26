@@ -18,12 +18,13 @@ Edit config/plurk_config.php, and configure your api key, plurk username, and pl
     $config['plurk_api_key'] = "xxxxx";
     $config['plurk_username'] = "xxxxx";
     $config['plurk_password'] = "xxxxx";
-    
+
 Put the following code to your controller:
 
+    $this->load->library('plurk');
     echo "<h1> ----- get plurks ----- </h1>";
     echo "<pre>";
-    echo $this->plurk->get_plurks(date("c"), 20);
+    print_r($this->plurk->get_plurks(date("c"), 20));
     echo "</pre>";
 
 default path of cookie and log files are application/logs, change permission to writable.
