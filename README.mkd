@@ -31,7 +31,7 @@ Edit config/plurk_config.php, and configure your api key, plurk username, and pl
     $config['plurk_username'] = "xxxxx";
     $config['plurk_password'] = "xxxxx";
 
-Change Permission
+default path of cookie and log files are application/logs, change permission to writable.
 
     $ chown -R www_user:www_group logs 
 
