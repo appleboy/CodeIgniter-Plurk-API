@@ -5,31 +5,40 @@ Welcome to the home of the Plurk API Library, a project that will help you to ge
 
 Introduction of Plurk API
 ===============
+
 Plurk API provides a standard way of accessing and implementing applications on top of the Plurk platform. The API is a simple HTTP API that can be accessed from any language that supports creation of HTTP requests.
 
-ref : http://www.plurk.com/API
+ref : http://www.plurk.com/API/1.0
 
 INSTALLATION
 ===============
 
 Download all file from this site.
+
     $ http://github.com/appleboy/CodeIgniter-Plurk-API/archives/master
     $ git://github.com/appleboy/CodeIgniter-Plurk-API.git
 
 Copy some files into directory.
+
     $ copy controllers/plurk_test.php your_application/controllers/
     $ copy config/plurk_config.php your_application/config/
     $ copy config/plurk_constant.php your_application/config/
     $ copy libraries/Plurk.php your_application/libraries/
 
 Edit config/plurk_config.php, and configure your api key, plurk username, and plurk password
+
     $config['plurk_api_key'] = "xxxxx";
     $config['plurk_username'] = "xxxxx";
     $config['plurk_password'] = "xxxxx";
 
+Change Permission
+
+    $ chown -R www_user:www_group logs 
+
 Test your controller file: plurk_test.php
+
     http://localhost/plurk_test
-      
+
 Reference Implementations:
 ===============
 
@@ -39,6 +48,6 @@ Reference Implementations:
 COPYRIGHT AND LICENCE
 ===============
 
-Copyright (C) 2009 ~ 2011 Bo-Yi Wu 吳柏毅 ( Bo-Yi Wu )
+Copyright (C) 2009 ~ 2011 Bo-Yi Wu (appleboy.tw AT gmail.com)
 
 This program is free software; you can redistribute it and/or modify it under the same terms as CodeIgniter itself.
