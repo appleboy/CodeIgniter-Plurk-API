@@ -22,7 +22,6 @@ Copy some files into directory.
 
     $ copy controllers/plurk_test.php your_application/controllers/
     $ copy config/plurk_config.php your_application/config/
-    $ copy config/plurk_constant.php your_application/config/
     $ copy libraries/Plurk.php your_application/libraries/
 
 Edit config/plurk_config.php, and configure your api key, plurk username, and plurk password
