@@ -10,7 +10,7 @@
  * This is a PHP Plurk API.
  *
  * @category  API
- * @version   php-plurk-api 1.5 
+ * @version   php-plurk-api 1.6.3
  * @license   http://www.opensource.org/licenses/bsd-license.php BSD License
  * @link      http://code.google.com/p/php-plurk-api
  *
@@ -94,10 +94,10 @@ Class Plurk {
     {
         $this->_obj =& get_instance();
         $this->_obj->load->config("plurk_config");
-		$this->api_key = $this->_obj->config->item("plurk_api_key");
-		$this->username = $this->_obj->config->item("plurk_username");
-		$this->password = $this->_obj->config->item("plurk_password");
-		$this->login($this->api_key, $this->username, $this->password);
+        $this->api_key = $this->_obj->config->item("plurk_api_key");
+        $this->username = $this->_obj->config->item("plurk_username");
+        $this->password = $this->_obj->config->item("plurk_password");
+        $this->login($this->api_key, $this->username, $this->password);
     }
 
     /**
@@ -402,11 +402,11 @@ Class Plurk {
      *     Returns a list of 30 recent karma updates. Each update is a string '[[unixtimestamp]]-[[karma_value]]', e.g. a valid entry is '1282046402-97.85'
      * karma_fall_reason:
      *     Why did karma drop? This value is a string and can be: friends_rejections, inactivity, too_short_responses
-     *                                   
-     * http://www.plurk.com/API#/API/Users/getKarmaStats     
+     *
+     * http://www.plurk.com/API#/API/Users/getKarmaStats
      * @return JSON object
      * @see /API/Users/getKarmaStats
-     */ 
+     */
     function get_karma_stats()
     {
         $array = array(
@@ -1536,6 +1536,56 @@ Class Plurk {
     }
 
     /**
+     * function get_collections
+     *
+     * @return json
+     * @see /API/PlurkTop/getCollections
+     */
+    function get_collections()
+    {
+        $array = array(
+            'api_key'    => $this->api_key
+        );
+
+        return $this->plurk(PLURK_GET_COLLECTIONS, $array);
+    }
+
+    /**
+     * function get_default_collection
+     *
+     * @return json
+     * @see /API/PlurkTop/getDefaultCollection
+     */
+    function get_default_collection()
+    {
+        $array = array(
+            'api_key'    => $this->api_key
+        );
+
+        return $this->plurk(PLURK_GET_DEFAULT_COLLECTION, $array);
+    }
+
+    /**
+     * function get_top_plurks
+     *
+     * @param string $offset should be an float, e.g. 0.99.
+     * @param string $sorting the way to sort plurks in PlurkTop, value [hot|new]
+     * @return json
+     * @see /API/PlurkTop/getPlurks
+     */
+    function get_top_plurks($offset = NULL, $sorting = NULL)
+    {
+        $array = array(
+            'api_key'    => $this->api_key
+        );
+
+        if(isset($offset)) $array['offset'] = $offset;
+        if(isset($sorting)) $array['sorting'] = $sorting;
+
+        return $this->plurk(PLURK_GET_PLURKS, $array);
+    }
+
+    /**
      * function get_login_status
      * Get login status
      *
@@ -1970,4 +2020,3 @@ Class Plurk {
     }
 
 }
-?>
