@@ -3,8 +3,8 @@
 /**
  * load dependencies.
  */
-@include(APPPATH.'config/plurk_config'.EXT);
-@include(APPPATH.'config/plurk_constant'.EXT);
+@include(APPPATH.'config/plurk_config.php');
+@include(APPPATH.'config/plurk_constant.php');
 
 /**
  * This is a PHP Plurk API.
