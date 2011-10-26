@@ -10,40 +10,34 @@ Plurk API provides a standard way of accessing and implementing applications on 
 
 ref : http://www.plurk.com/API/1.0
 
-INSTALLATION
+Usage
 ===============
-
-Download all file from this site.
-
-    $ http://github.com/appleboy/CodeIgniter-Plurk-API/archives/master
-    $ git://github.com/appleboy/CodeIgniter-Plurk-API.git
-
-Copy some files into directory.
-
-    $ copy controllers/plurk_test.php your_application/controllers/
-    $ copy config/plurk_config.php your_application/config/
-    $ copy config/plurk_constant.php your_application/config/
-    $ copy libraries/Plurk.php your_application/libraries/
 
 Edit config/plurk_config.php, and configure your api key, plurk username, and plurk password
 
     $config['plurk_api_key'] = "xxxxx";
     $config['plurk_username'] = "xxxxx";
     $config['plurk_password'] = "xxxxx";
+    
+Put the following code to your controller:
+
+    echo "<h1> ----- get plurks ----- </h1>";
+    echo "<pre>";
+    echo $this->plurk->get_plurks(date("c"), 20);
+    echo "</pre>";
 
 default path of cookie and log files are application/logs, change permission to writable.
 
     $ chown -R www_user:www_group logs 
 
-Test your controller file: plurk_test.php
+Test your controller:
 
-    http://localhost/plurk_test
+    http://localhost/your_controller
 
 Reference Implementations:
 ===============
 
-    * php-plurk-api: PHP implementation of this API http://code.google.com/p/php-plurk-api/
-    * pyplurk: Python implementation of this API https://code.google.com/p/pyplurk/ 
+    * php-plurk-api: PHP implementation of this API http://code.google.com/p/php-plurk-api/ 
 
 COPYRIGHT AND LICENCE
 ===============
