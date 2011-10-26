@@ -214,16 +214,16 @@ class Plurk_test extends CI_Controller {
     
     private function _dump($data)
     {
-        echo '<pre>';
+        echo "<pre>";
         var_dump($data);
-        echo '<pre>';
+        echo "</pre>";
     }
 
     private function _print($data)
     {
-        echo '<pre>';
+        echo "<pre>";
         print_r($data);
-        echo '<pre>';
+        echo "</pre>";
     }
 }
 /* End of file plurk_test.php */

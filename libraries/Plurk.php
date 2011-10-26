@@ -130,14 +130,14 @@ Class Plurk {
     }
 
     /**
-     * function plurk_connect
+     * function plurk
      * Connect to Plurk
      *
      * @param $url
      * @param $array
      * @return JSON object
      */
-    function plurk_connect($url, $array)
+    function plurk($url, $array)
     {
         $ch = curl_init();
 
@@ -147,14 +147,18 @@ Class Plurk {
         curl_setopt($ch, CURLOPT_POST, TRUE);
         curl_setopt($ch, CURLOPT_POSTFIELDS , http_build_query($array));
 
-        if($url == PLURK_LOGIN)
-            curl_setopt($ch, CURLOPT_COOKIEJAR, $this->cookie_path);
-        else
-            curl_setopt($ch, CURLOPT_COOKIEFILE, $this->cookie_path);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
 
         curl_setopt($ch, CURLOPT_USERAGENT, PLURK_AGENT);
 
-        (isset($this->cookie_path)) ? $cookie_path = $this->cookie_path : $cookie_path = PLURK_COOKIE_PATH;
+        if( ! isset($this->cookie_path))
+            $this->cookie_path = PLURK_COOKIE_PATH;
+
+        if($url == PLURK_LOGIN)
+                curl_setopt($ch, CURLOPT_COOKIEJAR, $this->cookie_path);
+        else
+                curl_setopt($ch, CURLOPT_COOKIEFILE, $this->cookie_path);
 
         if(isset($this->proxy))
             curl_setopt($ch, CURLOPT_PROXY, $this->proxy);
@@ -247,7 +251,7 @@ Class Plurk {
 
         if(isset($email)) $array['email'] = $email;
 
-        $result = $this->plurk_connect(PLURK_REGISTER, $array);
+        $result = $this->plurk(PLURK_REGISTER, $array);
 
         return $result;
     }
@@ -273,7 +277,7 @@ Class Plurk {
             'api_key'  => $api_key,
         );
 
-        $result = $this->plurk_connect(PLURK_LOGIN, $array);
+        $result = $this->plurk(PLURK_LOGIN, $array);
 
         ($this->http_status == '200') ? $this->is_login = TRUE : $this->is_login = FALSE;
 
@@ -300,7 +304,7 @@ Class Plurk {
             'api_key'   => $this->api_key,
         );
 
-        $result = $this->plurk_connect(PLURK_LOGOUT, $array);
+        $result = $this->plurk(PLURK_LOGOUT, $array);
 
         ($this->http_status == '200') ? $this->is_login = FALSE : $this->is_login = TRUE;
         if ($this->http_status == '200')
@@ -348,7 +352,7 @@ Class Plurk {
         if(isset($privacy)) $array['prvacy'] = $privacy;
         if(isset($date_of_birth)) $array['date_of_birth'] = $date_of_birth;
 
-        $result = $this->plurk_connect(PLURK_UPDATE, $array);
+        $result = $this->plurk(PLURK_UPDATE, $array);
 
         return ($this->http_status == '200') ? TRUE : FALSE;
     }
@@ -412,7 +416,7 @@ Class Plurk {
         $array = array(
             'api_key' => $this->api_key,
         );
-        return $this->plurk_connect(PLURK_GET_KARMASTATS, $array);
+        return $this->plurk(PLURK_GET_KARMASTATS, $array);
     }
 
     /**
@@ -434,7 +438,7 @@ Class Plurk {
             'api_key' => $this->api_key,
         );
 
-        return $this->plurk_connect(PLURK_REALTIME_GET_USER_CHANNEL, $array);
+        return $this->plurk(PLURK_REALTIME_GET_USER_CHANNEL, $array);
     }
 
     /**
@@ -498,7 +502,7 @@ Class Plurk {
             'limit'   => $limit,
         );
 
-        return $this->plurk_connect(PLURK_POLLING_GET_PLURK, $array);
+        return $this->plurk(PLURK_POLLING_GET_PLURK, $array);
     }
 
     /**
@@ -518,7 +522,7 @@ Class Plurk {
             'api_key' => $this->api_key,
         );
 
-        return $this->plurk_connect(PLURK_POLLING_GET_UNREAD_COUNT, $array);
+        return $this->plurk(PLURK_POLLING_GET_UNREAD_COUNT, $array);
     }
 
     /**
@@ -537,7 +541,7 @@ Class Plurk {
             'plurk_id'  => $plurk_id,
         );
 
-        return $this->plurk_connect(PLURK_TIMELINE_GET_PLURK, $array);
+        return $this->plurk(PLURK_TIMELINE_GET_PLURK, $array);
     }
 
     /**
@@ -570,7 +574,7 @@ Class Plurk {
         if(isset($only_private)) $array['only_private'] = $only_private;
         if(isset($only_favorite)) $array['only_favorite'] = $only_favorite;
 
-        return $this->plurk_connect(PLURK_TIMELINE_GET_PLURKS, $array);
+        return $this->plurk(PLURK_TIMELINE_GET_PLURKS, $array);
     }
 
     /**
@@ -593,7 +597,7 @@ Class Plurk {
             'limit'    => $limit
         );
 
-        $result = $this->plurk_connect(PLURK_TIMELINE_GET_UNREAD_PLURKS, $array);
+        $result = $this->plurk(PLURK_TIMELINE_GET_UNREAD_PLURKS, $array);
         return $result;
     }
 
@@ -629,7 +633,7 @@ Class Plurk {
         // roga.2009-12-14: need to confirm.
         if (isset($limited_to)) $array['limited_to'] = json_encode($limited_to);
 
-        $result = $this->plurk_connect(PLURK_TIMELINE_PLURK_ADD, $array);
+        $result = $this->plurk(PLURK_TIMELINE_PLURK_ADD, $array);
 
         return $result;
     }
@@ -650,7 +654,7 @@ Class Plurk {
             'plurk_id' => $plurk_id
         );
 
-        $result = $this->plurk_connect(PLURK_TIMELINE_PLURK_DELETE, $array);
+        $result = $this->plurk(PLURK_TIMELINE_PLURK_DELETE, $array);
 
         return ($this->http_status == '200') ? TRUE : FALSE;
     }
@@ -678,7 +682,7 @@ Class Plurk {
             'content'  => $content
         );
 
-        $result = $this->plurk_connect(PLURK_TIMELINE_PLURK_EDIT, $array);
+        $result = $this->plurk(PLURK_TIMELINE_PLURK_EDIT, $array);
 
         return $result;
     }
@@ -699,7 +703,7 @@ Class Plurk {
             'ids'     => json_encode($ids),
         );
 
-        $this->plurk_connect(PLURK_TIMELINE_MUTE_PLURKS, $array);
+        $this->plurk(PLURK_TIMELINE_MUTE_PLURKS, $array);
 
         return ($this->http_status == '200') ? TRUE : FALSE;
 
@@ -721,7 +725,7 @@ Class Plurk {
             'ids'     => json_encode($ids),
         );
 
-        $result = $this->plurk_connect(PLURK_TIMELINE_UNMUTE_PLURKS, $array);
+        $result = $this->plurk(PLURK_TIMELINE_UNMUTE_PLURKS, $array);
 
         return ($this->http_status == '200') ? TRUE : FALSE;
     }
@@ -742,7 +746,7 @@ Class Plurk {
             'ids'     => json_encode($ids),
         );
 
-        $this->plurk_connect(PLURK_TIMELINE_FAVORITE_PLURKS, $array);
+        $this->plurk(PLURK_TIMELINE_FAVORITE_PLURKS, $array);
 
         return ($this->http_status == '200') ? TRUE : FALSE;
     }
@@ -763,7 +767,7 @@ Class Plurk {
             'ids'     => json_encode($ids),
         );
 
-        $this->plurk_connect(PLURK_TIMELINE_UNFAVORITE_PLURKS, $array);
+        $this->plurk(PLURK_TIMELINE_UNFAVORITE_PLURKS, $array);
 
         return ($this->http_status == '200') ? TRUE : FALSE;
     }
@@ -784,7 +788,7 @@ Class Plurk {
             'ids'     => json_encode($ids),
         );
 
-        $this->plurk_connect(PLURK_TIMELINE_MARK_AS_READ, $array);
+        $this->plurk(PLURK_TIMELINE_MARK_AS_READ, $array);
 
         return ($this->http_status == '200') ? TRUE : FALSE;
     }
@@ -849,7 +853,7 @@ Class Plurk {
             'offset'   => $offset
         );
 
-        return $this->plurk_connect(PLURK_GET_RESPONSE, $array);
+        return $this->plurk(PLURK_GET_RESPONSE, $array);
     }
 
     /**
@@ -877,7 +881,7 @@ Class Plurk {
             'qualifier' => $qualifier
         );
 
-        $result = $this->plurk_connect(PLURK_ADD_RESPONSE, $array);
+        $result = $this->plurk(PLURK_ADD_RESPONSE, $array);
 
         return $result;
     }
@@ -901,7 +905,7 @@ Class Plurk {
             'response_id' => $response_id
         );
 
-        $result = $this->plurk_connect(PLURK_DELERE_RESPONSE, $array);
+        $result = $this->plurk(PLURK_DELERE_RESPONSE, $array);
 
         return ($this->http_status == '200') ? TRUE : FALSE;
     }
@@ -918,7 +922,7 @@ Class Plurk {
 
         $array = array('api_key' => $this->api_key);
 
-        $result = $this->plurk_connect(PLURK_GET_OWN_PROFILE, $array);
+        $result = $this->plurk(PLURK_GET_OWN_PROFILE, $array);
 
         $this->user_info = $result;
 
@@ -939,7 +943,7 @@ Class Plurk {
             'user_id' => $user_id
         );
 
-        return $this->plurk_connect(PLURK_GET_PUBLIC_PROFILE, $array);
+        return $this->plurk(PLURK_GET_PUBLIC_PROFILE, $array);
     }
 
     /**
@@ -958,7 +962,7 @@ Class Plurk {
             'offset'  => $offset
         );
 
-        return $this->plurk_connect(PLURK_GET_FRIENDS, $array);
+        return $this->plurk(PLURK_GET_FRIENDS, $array);
     }
 
     /**
@@ -979,7 +983,7 @@ Class Plurk {
             'offset'  => $offset
         );
 
-        return $this->plurk_connect(PLURK_GET_FANS, $array);
+        return $this->plurk(PLURK_GET_FANS, $array);
     }
 
     /**
@@ -998,7 +1002,7 @@ Class Plurk {
             'offset'  => $offset
         );
 
-        return $this->plurk_connect(PLURK_GET_FOLLOWING, $array);
+        return $this->plurk(PLURK_GET_FOLLOWING, $array);
     }
 
     /**
@@ -1017,7 +1021,7 @@ Class Plurk {
             'friend_id' => $friend_id
         );
 
-        $result =  $this->plurk_connect(PLURK_BECOME_FRIEND, $array);
+        $result =  $this->plurk(PLURK_BECOME_FRIEND, $array);
 
         return ($this->http_status == '200') ? TRUE : FALSE;
     }
@@ -1038,7 +1042,7 @@ Class Plurk {
             'friend_id' => $friend_id
         );
 
-        $result =  $this->plurk_connect(PLURK_REMOVE_FRIEND, $array);
+        $result =  $this->plurk(PLURK_REMOVE_FRIEND, $array);
 
         return ($this->http_status == '200') ? TRUE : FALSE;
     }
@@ -1059,7 +1063,7 @@ Class Plurk {
             'fan_id'  => $fan_id
         );
 
-        $result =  $this->plurk_connect(PLURK_BECOME_FAN, $array);
+        $result =  $this->plurk(PLURK_BECOME_FAN, $array);
 
         return ($this->http_status == '200') ? TRUE : FALSE;
     }
@@ -1083,7 +1087,7 @@ Class Plurk {
             'follow'  => $follow
         );
 
-        $result =  $this->plurk_connect(PLURK_SET_FOLLOWING, $array);
+        $result =  $this->plurk(PLURK_SET_FOLLOWING, $array);
 
         return ($this->http_status == '200') ? TRUE : FALSE;
     }
@@ -1101,7 +1105,7 @@ Class Plurk {
 
         $array = array('api_key' => $this->api_key);
 
-        return $this->plurk_connect(PLURK_GET_COMPLETION, $array);
+        return $this->plurk(PLURK_GET_COMPLETION, $array);
     }
 
     /**
@@ -1117,7 +1121,7 @@ Class Plurk {
 
         $array = array('api_key' => $this->api_key);
 
-        return $this->plurk_connect(PLURK_GET_ACTIVE, $array);
+        return $this->plurk(PLURK_GET_ACTIVE, $array);
     }
 
     /**
@@ -1134,7 +1138,7 @@ Class Plurk {
 
         $array = array('api_key' => $this->api_key);
 
-        return $this->plurk_connect(PLURK_GET_HISTORY, $array);
+        return $this->plurk(PLURK_GET_HISTORY, $array);
     }
 
     /**
@@ -1154,7 +1158,7 @@ Class Plurk {
             'user_id' => $user_id
         );
 
-        $result = $this->plurk_connect(PLURK_ADD_AS_FAN, $array);
+        $result = $this->plurk(PLURK_ADD_AS_FAN, $array);
 
         return ($this->http_status == '200') ? TRUE : FALSE;
     }
@@ -1176,7 +1180,7 @@ Class Plurk {
             'user_id' => $user_id
         );
 
-        $result = $this->plurk_connect(PLURK_ADD_AS_FRIEND, $array);
+        $result = $this->plurk(PLURK_ADD_AS_FRIEND, $array);
 
         return ($this->http_status == '200') ? TRUE : FALSE;
     }
@@ -1194,7 +1198,7 @@ Class Plurk {
 
         $array = array('api_key' => $this->api_key);
 
-        $result = $this->plurk_connect(PLURK_ADD_ALL_AS_FAN, $array);
+        $result = $this->plurk(PLURK_ADD_ALL_AS_FAN, $array);
 
         return ($this->http_status == '200') ? TRUE : FALSE;
     }
@@ -1212,7 +1216,7 @@ Class Plurk {
 
         $array = array('api_key' => $this->api_key);
 
-        $result = $this->plurk_connect(PLURK_ADD_ALL_AS_FRIEND, $array);
+        $result = $this->plurk(PLURK_ADD_ALL_AS_FRIEND, $array);
 
         return ($this->http_status == '200') ? TRUE : FALSE;
     }
@@ -1234,7 +1238,7 @@ Class Plurk {
             'user_id' => $user_id
         );
 
-        $result = $this->plurk_connect(PLURK_DENY_FRIEND, $array);
+        $result = $this->plurk(PLURK_DENY_FRIEND, $array);
 
         return ($this->http_status == '200') ? TRUE : FALSE;
     }
@@ -1256,7 +1260,7 @@ Class Plurk {
             'user_id' => $user_id
         );
 
-        $result = $this->plurk_connect(PLURK_REMOVE_NOTIFY, $array);
+        $result = $this->plurk(PLURK_REMOVE_NOTIFY, $array);
 
         return ($this->http_status == '200') ? TRUE : FALSE;
     }
@@ -1287,7 +1291,7 @@ Class Plurk {
             'offset'  => $offset
         ) ;
 
-        return $this->plurk_connect(PLURK_SEARCH, $array);
+        return $this->plurk(PLURK_SEARCH, $array);
     }
 
     /**
@@ -1316,7 +1320,7 @@ Class Plurk {
             'offset'  => $offset
         ) ;
 
-        return $this->plurk_connect(PLURK_USER_SEARCH, $array);
+        return $this->plurk(PLURK_USER_SEARCH, $array);
     }
 
     /**
@@ -1334,7 +1338,7 @@ Class Plurk {
 
         $array = array('api_key' => $this->api_key);
 
-        $result = $this->plurk_connect(PLURK_GET_EMOTIONS, $array);
+        $result = $this->plurk(PLURK_GET_EMOTIONS, $array);
 
         return $result;
     }
@@ -1355,7 +1359,7 @@ Class Plurk {
           'offset'  => $offset,
         );
 
-        return $this->plurk_connect(PLURK_GET_BLOCKS, $array);
+        return $this->plurk(PLURK_GET_BLOCKS, $array);
 
     }
 
@@ -1375,7 +1379,7 @@ Class Plurk {
             'user_id' => $user_id,
         );
 
-        $this->plurk_connect(PLURK_BLOCK, $array);
+        $this->plurk(PLURK_BLOCK, $array);
         return ($this->http_status == '200') ? TRUE : FALSE;
     }
 
@@ -1395,7 +1399,7 @@ Class Plurk {
             'user_id' => $user_id,
         );
 
-        $this->plurk_connect(PLURK_UNBLOCK, $array);
+        $this->plurk(PLURK_UNBLOCK, $array);
 
         return ($this->http_status == '200') ? TRUE : FALSE;
     }
@@ -1412,7 +1416,7 @@ Class Plurk {
 
         $array = array('api_key' => $this->api_key);
 
-        return $this->plurk_connect(PLURK_GET_CLIQUES, $array);
+        return $this->plurk(PLURK_GET_CLIQUES, $array);
     }
 
     /**
@@ -1432,7 +1436,7 @@ Class Plurk {
             'clique_name' => $clique_name
         );
 
-        return $this->plurk_connect(PLURK_GET_CLIQUE, $array);
+        return $this->plurk(PLURK_GET_CLIQUE, $array);
     }
 
     /**
@@ -1457,7 +1461,7 @@ Class Plurk {
             'clique_name' => $clique_name
         );
 
-        $result =  $this->plurk_connect(PLURK_CREATE_CLIQUE, $array);
+        $result =  $this->plurk(PLURK_CREATE_CLIQUE, $array);
 
         return ($this->http_status == '200') ? TRUE : FALSE;
 
@@ -1482,7 +1486,7 @@ Class Plurk {
             'new_name'    => $new_name
         );
 
-        $result = $this->plurk_connect(PLURK_RENAME_CLIQUE, $array);
+        $result = $this->plurk(PLURK_RENAME_CLIQUE, $array);
 
         return ($this->http_status == '200') ? TRUE : FALSE;
     }
@@ -1506,7 +1510,7 @@ Class Plurk {
             'user_id'     => $user_id
         );
 
-        $result = $this->plurk_connect(PLURK_ADD_TO_CLIQUE, $array);
+        $result = $this->plurk(PLURK_ADD_TO_CLIQUE, $array);
 
         return ($this->http_status == '200') ? TRUE : FALSE;
     }
@@ -1530,7 +1534,7 @@ Class Plurk {
             'user_id'     => $user_id
         );
 
-        $result = $this->plurk_connect(PLURK_REMOVE_FROM_CLIQUE, $array);
+        $result = $this->plurk(PLURK_REMOVE_FROM_CLIQUE, $array);
 
         return ($this->http_status == '200') ? TRUE : FALSE;
     }
