@@ -9,7 +9,7 @@
  * This is a PHP Plurk API.
  *
  * @category  API
- * @version   php-plurk-api 1.6.3
+ * @version   php-plurk-api 1.6.4
  * @license   http://www.opensource.org/licenses/bsd-license.php BSD License
  * @link      http://code.google.com/p/php-plurk-api
  *
@@ -115,17 +115,16 @@ Class Plurk {
      *
      * @param $message
      */
-    function log($message = NULL)
+    function log($message = NULL, $method = NULL)
     {
-        $log_path = (isset($this->log_path)) ? $this->log_path : PLURK_LOG_PATH;
-
-        if(!file_exists(PLURK_LOG_PATH)) touch(PLURK_LOG_PATH);
+        if( ! isset($this->log_path)) $this->log_path = PLURK_LOG_PATH;
+        if( ! file_exists($this->log_path))  touch($this->log_path);
 
         $date = date("Y-m-d H:i:s");
         $username = $this->username;
         $array = print_r($this->post_array, TRUE);
 
-        error_log("date: $date\nusername: $username\nmessage: $message\ndata_dump: $array\n", 3, $log_path);
+        error_log("date: $date\nmethod: $method\nusername: $username\nmessage: $message\ndata_dump: $array\n", 3, $this->log_path);
     }
 
     /**
@@ -240,10 +239,10 @@ Class Plurk {
             $this->log('should be male or female.', __METHOD__);
 
         $array = array(
-            'api_key'       => $this->api_key,
-            'nick_name'     => $nick_name,
-            'full_name'     => $full_name,
-            'password'      => $password,
+            'api_key'      => $this->api_key,
+            'nick_name'  => $nick_name,
+            'full_name'  => $full_name,
+            'password'    => $password,
             'gender'        => $gender,
             'date_of_birth' => $date_of_birth
         );
@@ -265,11 +264,11 @@ Class Plurk {
      * @return boolean
      * @see /API/Users/login
      */
-    function login($api_key = NULL, $username = NULL, $password = NULL)
+    function login($api_key = '', $username = '', $password = '')
     {
-        $api_key = (isset($api_key)) ? $api_key : $this->api_key;
-        $username = (isset($username)) ? $username : $this->username;
-        $password = (isset($password)) ? $password : $this->password;
+
+        $this->username  = $username;
+
         $array = array(
             'username' => $username,
             'password' => $password,
@@ -306,8 +305,6 @@ Class Plurk {
         $result = $this->plurk(PLURK_LOGOUT, $array);
 
         ($this->http_status == '200') ? $this->is_login = FALSE : $this->is_login = TRUE;
-        if ($this->http_status == '200')
-            $this->log('User logout successfully.', __METHOD__);
 
         return ! $this->is_login;
     }
@@ -328,7 +325,7 @@ Class Plurk {
      */
     function update($current_password = NULL, $full_name = NULL, $new_password = NULL, $email = NULL, $display_name = NULL, $privacy = NULL, $date_of_birth = NULL)
     {
-        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
+        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN, __METHOD__);
 
         if( ! isset($full_name))
             $this->log('full name can not be empty.', __METHOD__);
@@ -336,11 +333,11 @@ Class Plurk {
         if(isset($privacy))
         {
             if( ! in_array($privacy, array('world', 'only_friends', 'only_me')))
-                $this->log("User's privacy must be world, only_friends or only_me.", __METHOD__);
+                $this->log("User's privacy must be world, only_friends or only_me.");
         }
 
         $array = array(
-            'api_key'          => $this->api_key,
+            'api_key'         => $this->api_key,
             'current_password' => $current_password,
         );
 
@@ -368,7 +365,7 @@ Class Plurk {
     {
         //  RFC 1867
 
-        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
+        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN, __METHOD__);
 
         $array['api_key'] = $this->api_key;
         $array['profile_image'] = "@" . $profile_image;
@@ -389,12 +386,12 @@ Class Plurk {
         curl_setopt($ch, CURLOPT_COOKIEFILE, $cookie_path);
         curl_setopt($ch, CURLOPT_COOKIEJAR, $cookie_path);
 
-        $result = curl_exec($ch);
+        $response = curl_exec($ch);
 
         $this->http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $this->http_response = $result;
+        $this->http_response = $response;
 
-        return json_decode($result);
+        return json_decode($response);
     }
 
     /**
@@ -402,9 +399,9 @@ Class Plurk {
      * Returns info about a user's karma, including current karma, karma growth, karma graph and the latest reason why the karma has dropped.
      *
      * karma_trend:
-     *     Returns a list of 30 recent karma updates. Each update is a string '[[unixtimestamp]]-[[karma_value]]', e.g. a valid entry is '1282046402-97.85'
+     *   Returns a list of 30 recent karma updates. Each update is a string '[[unixtimestamp]]-[[karma_value]]', e.g. a valid entry is '1282046402-97.85'
      * karma_fall_reason:
-     *     Why did karma drop? This value is a string and can be: friends_rejections, inactivity, too_short_responses
+     *   Why did karma drop? This value is a string and can be: friends_rejections, inactivity, too_short_responses
      *
      * http://www.plurk.com/API#/API/Users/getKarmaStats
      * @return JSON object
@@ -454,7 +451,11 @@ Class Plurk {
     function realtime_get_commet_channel($comet_server = NULL, $new_offset = NULL)
     {
 
-        $comet_url = $comet_server . '&offset=' . $new_offset;
+        if(isset($new_offset))
+            $comet_url = $comet_server . '&offset=' . $new_offset;
+        else
+            $comet_url = $comet_server;
+
         /**
          * the "$comet_url" should look like
          * http://comet03.plurk.com/comet/1235515351741/?channel=generic-4-f733d8522327edf87b4d1651e6395a6cca0807a0
@@ -462,7 +463,6 @@ Class Plurk {
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $comet_url);
-        curl_setopt($ch, CURLOPT_POST, TRUE);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
         curl_setopt($ch, CURLOPT_USERAGENT, PLURK_AGENT);
@@ -472,12 +472,13 @@ Class Plurk {
         curl_setopt($ch, CURLOPT_COOKIEFILE, $cookie_path);
         curl_setopt($ch, CURLOPT_COOKIEJAR, $cookie_path);
 
-        $result = curl_exec($ch);
+        $response = curl_exec($ch);
 
         $this->http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $this->http_response = $result;
+        $this->http_response = $response;
 
-        return json_decode($result);
+        // return raw response, cause plurk server will return "CometChannel.scriptCallback({"new_offset": 5090486,"data": ... "new_plurk", "owner_id": 5320351}]});"
+        return $response;
 
     }
 
@@ -491,7 +492,7 @@ Class Plurk {
      */
     function get_plurks_polling($offset = NULL, $limit = 50)
     {
-        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
+        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN, __METHOD__);
 
         $offset = (isset($offset)) ? $offset : array_shift(explode("+", date("c")));
 
@@ -513,9 +514,7 @@ Class Plurk {
      */
     function get_plurks_polling_unread_count()
     {
-        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
-
-        $offset = array_shift(explode("+", date("c")));
+        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN, __METHOD__);
 
         $array = array(
             'api_key' => $this->api_key,
@@ -533,7 +532,7 @@ Class Plurk {
      */
     function get_plurk($plurk_id = 0)
     {
-        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
+        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN, __METHOD__);
 
         $array = array(
             'api_key'   => $this->api_key,
@@ -557,7 +556,7 @@ Class Plurk {
      */
      function get_plurks($offset = NULL, $limit = 20, $only_user = NULL, $only_responded = NULL, $only_private = NULL, $only_favorite = NULL)
     {
-        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
+        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN, __METHOD__);
 
         $offset = (isset($offset)) ? $offset : array_shift(explode("+", date("c")));
         /* format 2010-01-18T11:24:43 */
@@ -565,7 +564,7 @@ Class Plurk {
         $array = array(
             'api_key'  => $this->api_key,
             'offset'   => $offset,
-            'limit'    => $limit
+            'limit' => $limit
         );
 
         if(isset($only_user)) $array['only_user'] = $only_user;
@@ -586,14 +585,14 @@ Class Plurk {
      */
     function get_unread_plurks($offset = NULL ,$limit = 10)
     {
-        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
+        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN, __METHOD__);
 
         $offset = (isset($offset)) ? $offset : array_shift(explode("+", date("c")));
 
         $array = array(
             'api_key'  => $this->api_key,
             'offset'   => $date,
-            'limit'    => $limit
+            'limit' => $limit
         );
 
         $result = $this->plurk(PLURK_TIMELINE_GET_UNREAD_PLURKS, $array);
@@ -614,7 +613,7 @@ Class Plurk {
      */
     function add_plurk($lang = 'en', $qualifier = 'says', $content = 'test from plurk-api', $limited_to = NULL, $no_comments = 0)
     {
-        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
+        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN, __METHOD__);
 
         if (mb_strlen($content, 'UTF-8') > 140)
         {
@@ -622,10 +621,10 @@ Class Plurk {
         }
 
         $array = array(
-            'api_key'     => $this->api_key,
+            'api_key'    => $this->api_key,
             'qualifier'   => $qualifier,
-            'content'     => $content,
-            'lang'        => $lang,
+            'content'    => $content,
+            'lang'      => $lang,
             'no_comments' => $no_comments
         );
 
@@ -646,7 +645,7 @@ Class Plurk {
      */
     function delete_plurk($plurk_id = 0)
     {
-        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
+        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN, __METHOD__);
 
         $array = array(
             'api_key'  => $this->api_key,
@@ -668,7 +667,7 @@ Class Plurk {
      */
     function edit_plurk($plurk_id = 0, $content = '')
     {
-        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
+        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN, __METHOD__);
 
         if (mb_strlen($content, 'UTF-8') > 140)
         {
@@ -695,11 +694,11 @@ Class Plurk {
      */
     function mute_plurks($ids)
     {
-        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
+        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN, __METHOD__);
 
         $array = array(
             'api_key' => $this->api_key,
-            'ids'     => json_encode($ids),
+            'ids'    => json_encode($ids),
         );
 
         $this->plurk(PLURK_TIMELINE_MUTE_PLURKS, $array);
@@ -717,11 +716,11 @@ Class Plurk {
      */
     function unmute_plurks($ids)
     {
-        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
+        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN, __METHOD__);
 
         $array = array(
             'api_key' => $this->api_key,
-            'ids'     => json_encode($ids),
+            'ids'    => json_encode($ids),
         );
 
         $result = $this->plurk(PLURK_TIMELINE_UNMUTE_PLURKS, $array);
@@ -738,11 +737,11 @@ Class Plurk {
     */
     function favorite_plurk($ids)
     {
-        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
+        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN, __METHOD__);
 
         $array = array(
             'api_key' => $this->api_key,
-            'ids'     => json_encode($ids),
+            'ids'    => json_encode($ids),
         );
 
         $this->plurk(PLURK_TIMELINE_FAVORITE_PLURKS, $array);
@@ -759,11 +758,11 @@ Class Plurk {
     */
     function unfavorite_plurk($ids)
     {
-        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
+        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN, __METHOD__);
 
         $array = array(
             'api_key' => $this->api_key,
-            'ids'     => json_encode($ids),
+            'ids'    => json_encode($ids),
         );
 
         $this->plurk(PLURK_TIMELINE_UNFAVORITE_PLURKS, $array);
@@ -780,11 +779,11 @@ Class Plurk {
      */
     function mark_plurk_as_read($ids)
     {
-        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
+        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN, __METHOD__);
 
         $array = array(
             'api_key' => $this->api_key,
-            'ids'     => json_encode($ids),
+            'ids'    => json_encode($ids),
         );
 
         $this->plurk(PLURK_TIMELINE_MARK_AS_READ, $array);
@@ -805,7 +804,7 @@ Class Plurk {
      */
     function upload_picture($upload_image = '')
     {
-        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
+        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN, __METHOD__);
 
         $array['api_key'] = $this->api_key;
         $array['image'] = "@" . $upload_image;
@@ -826,12 +825,12 @@ Class Plurk {
         curl_setopt($ch, CURLOPT_COOKIEFILE, $cookie_path);
         curl_setopt($ch, CURLOPT_COOKIEJAR, $cookie_path);
 
-        $result = curl_exec($ch);
+        $response = curl_exec($ch);
 
         $this->http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $this->http_response = $result;
+        $this->http_response = $response;
 
-        return json_decode($result);
+        return json_decode($response);
     }
 
     /**
@@ -844,7 +843,7 @@ Class Plurk {
      */
     function get_responses($plurk_id = 0, $offset = 0)
     {
-        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
+        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN, __METHOD__);
 
         $array = array(
             'api_key'  => $this->api_key,
@@ -866,7 +865,7 @@ Class Plurk {
      */
     function add_response($plurk_id = 0, $content = '', $qualifier = 'says')
     {
-        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
+        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN, __METHOD__);
 
         if (mb_strlen($content, 'UTF-8') > 140)
         {
@@ -896,11 +895,11 @@ Class Plurk {
      */
     function delete_response($plurk_id = 0, $response_id = 0)
     {
-        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
+        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN, __METHOD__);
 
         $array = array(
-            'api_key'     => $this->api_key,
-            'plurk_id'    => $plurk_id,
+            'api_key'    => $this->api_key,
+            'plurk_id'  => $plurk_id,
             'response_id' => $response_id
         );
 
@@ -917,7 +916,7 @@ Class Plurk {
      */
     function get_own_profile()
     {
-        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
+        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN, __METHOD__);
 
         $array = array('api_key' => $this->api_key);
 
@@ -974,7 +973,7 @@ Class Plurk {
      */
     function get_fans($user_id = 0, $offset = 0)
     {
-        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
+        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN, __METHOD__);
 
         $array = array(
             'api_key' => $this->api_key,
@@ -994,7 +993,7 @@ Class Plurk {
      */
     function get_following($offset = 0)
     {
-        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
+        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN, __METHOD__);
 
         $array = array(
             'api_key' => $this->api_key,
@@ -1013,7 +1012,7 @@ Class Plurk {
      */
     function become_friend($friend_id = 0)
     {
-        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
+        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN, __METHOD__);
 
         $array = array(
             'api_key'   => $this->api_key,
@@ -1034,7 +1033,7 @@ Class Plurk {
      */
     function remove_friend($friend_id = 0)
     {
-        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
+        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN, __METHOD__);
 
         $array = array(
             'api_key'   => $this->api_key,
@@ -1055,7 +1054,7 @@ Class Plurk {
      */
     function become_fan($fan_id = 0)
     {
-        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
+        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN, __METHOD__);
 
         $array = array(
             'api_key' => $this->api_key,
@@ -1078,7 +1077,7 @@ Class Plurk {
      */
     function set_following($user_id = 0, $follow = false)
     {
-        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
+        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN, __METHOD__);
 
         $array = array(
             'api_key' => $this->api_key,
@@ -1100,7 +1099,7 @@ Class Plurk {
      */
     function get_completion()
     {
-        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
+        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN, __METHOD__);
 
         $array = array('api_key' => $this->api_key);
 
@@ -1116,7 +1115,7 @@ Class Plurk {
      */
     function get_active()
     {
-        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
+        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN, __METHOD__);
 
         $array = array('api_key' => $this->api_key);
 
@@ -1133,7 +1132,7 @@ Class Plurk {
      */
     function get_history()
     {
-        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
+        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN, __METHOD__);
 
         $array = array('api_key' => $this->api_key);
 
@@ -1150,7 +1149,7 @@ Class Plurk {
      */
     function add_as_fan($user_id = 0)
     {
-        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
+        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN, __METHOD__);
 
         $array = array(
             'api_key' => $this->api_key,
@@ -1172,7 +1171,7 @@ Class Plurk {
      */
     function add_as_friend($user_id = 0)
     {
-        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
+        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN, __METHOD__);
 
         $array = array(
             'api_key' => $this->api_key,
@@ -1193,7 +1192,7 @@ Class Plurk {
      */
     function add_all_as_fan()
     {
-        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
+        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN, __METHOD__);
 
         $array = array('api_key' => $this->api_key);
 
@@ -1211,7 +1210,7 @@ Class Plurk {
      */
     function add_all_as_friends()
     {
-        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
+        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN, __METHOD__);
 
         $array = array('api_key' => $this->api_key);
 
@@ -1230,7 +1229,7 @@ Class Plurk {
      */
     function deny_friendship($user_id = 0)
     {
-        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
+        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN, __METHOD__);
 
         $array = array(
             'api_key' => $this->api_key,
@@ -1252,7 +1251,7 @@ Class Plurk {
      */
     function remove_notification($user_id = 0)
     {
-        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
+        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN, __METHOD__);
 
         $array = array(
             'api_key' => $this->api_key,
@@ -1275,7 +1274,7 @@ Class Plurk {
      */
     function search_plurk($query = '', $offset = 0)
     {
-        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
+        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN, __METHOD__);
 
         /* offset: A plurk_id of the oldest Plurk in the last search result.  */
 
@@ -1304,7 +1303,7 @@ Class Plurk {
      */
     function search_user($query = '', $offset = 0)
     {
-        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
+        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN, __METHOD__);
 
         /* offset: Page offset, like 10, 20, 30 etc. */
 
@@ -1333,7 +1332,7 @@ Class Plurk {
      */
     function get_emoticons()
     {
-        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
+        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN, __METHOD__);
 
         $array = array('api_key' => $this->api_key);
 
@@ -1351,7 +1350,7 @@ Class Plurk {
      */
     function get_blocks($offset = 0)
     {
-        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
+        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN, __METHOD__);
 
         $array = array(
           'api_key' => $this->api_key,
@@ -1371,7 +1370,7 @@ Class Plurk {
      */
     function block_user($user_id = 0)
     {
-        if( ! $this->is_login) exit(PLURK_NOT_LOGIN);
+        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN, __METHOD__);
 
         $array = array(
             'api_key' => $this->api_key,
@@ -1391,7 +1390,7 @@ Class Plurk {
      */
     function unblock_user($user_id = 0)
     {
-        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
+        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN, __METHOD__);
 
         $array = array(
             'api_key' => $this->api_key,
@@ -1411,7 +1410,7 @@ Class Plurk {
      */
     function get_cliques()
     {
-        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
+        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN, __METHOD__);
 
         $array = array('api_key' => $this->api_key);
 
@@ -1428,10 +1427,10 @@ Class Plurk {
      */
     function get_clique($clique_name = '')
     {
-        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
+        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN, __METHOD__);
 
         $array = array(
-            'api_key'     => $this->api_key,
+            'api_key'    => $this->api_key,
             'clique_name' => $clique_name
         );
 
@@ -1448,7 +1447,7 @@ Class Plurk {
      */
     function create_clique($clique_name = '')
     {
-        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
+        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN, __METHOD__);
 
         if ($clique_name == "")
         {
@@ -1456,7 +1455,7 @@ Class Plurk {
         }
 
         $array = array(
-            'api_key'     => $this->api_key,
+            'api_key'    => $this->api_key,
             'clique_name' => $clique_name
         );
 
@@ -1477,12 +1476,12 @@ Class Plurk {
      */
     function rename_clique($clique_name = '', $new_name = '')
     {
-        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
+        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN, __METHOD__);
 
         $array = array(
-            'api_key'     => $this->api_key,
+            'api_key'    => $this->api_key,
             'clique_name' => $clique_name,
-            'new_name'    => $new_name
+            'new_name'  => $new_name
         );
 
         $result = $this->plurk(PLURK_RENAME_CLIQUE, $array);
@@ -1501,12 +1500,12 @@ Class Plurk {
      */
     function add_to_clique($clique_name = '', $user_id = 0)
     {
-        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
+        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN, __METHOD__);
 
         $array = array(
-            'api_key'     => $this->api_key,
+            'api_key'    => $this->api_key,
             'clique_name' => $clique_name,
-            'user_id'     => $user_id
+            'user_id'    => $user_id
         );
 
         $result = $this->plurk(PLURK_ADD_TO_CLIQUE, $array);
@@ -1525,12 +1524,12 @@ Class Plurk {
      */
     function remove_from_clique($clique_name = '', $user_id = 0)
     {
-        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN);
+        if( ! $this->is_login) $this->log(PLURK_NOT_LOGIN, __METHOD__);
 
         $array = array(
-            'api_key'     => $this->api_key,
+            'api_key'    => $this->api_key,
             'clique_name' => $clique_name,
-            'user_id'     => $user_id
+            'user_id'    => $user_id
         );
 
         $result = $this->plurk(PLURK_REMOVE_FROM_CLIQUE, $array);
@@ -1676,8 +1675,8 @@ Class Plurk {
      * previous posts.
      *
      * @param int   $int_uid          The UID to fetch plurks for.
-     * @param string $date_from     The date/time to start fetching plurks. This must be in the <yyyy-mm-dd>T<hh:mm:ss> format assumed to be UTC time.
-     * @param string $date_offset     The date/time offset that fetches plurks earlier than this offset. The format is the same as $date_from.
+     * @param string $date_from  The date/time to start fetching plurks. This must be in the <yyyy-mm-dd>T<hh:mm:ss> format assumed to be UTC time.
+     * @param string $date_offset    The date/time offset that fetches plurks earlier than this offset. The format is the same as $date_from.
      * @param bool   $fetch_responses  If true, populate the responses_fetch value with the array of responses.
      * @param bool   $self_plurks_only If true, return only self plurks.
      * @return array The array (numerical) of plurks (an associative subarray).
@@ -1709,7 +1708,7 @@ Class Plurk {
      *
      * @param array $int_plurk_id The plurk id to be muted/unmuted.
      * @param bool  $bool_setmute If true, this plurk is to be muted, else,
-     *                          unmute it.
+     *                        unmute it.
      *
      * @return bool Returns true if successful or false otherwise.
      */
@@ -1774,8 +1773,8 @@ Class Plurk {
      * Compatible with RLPlurkAPI
      * Respond to a plurk.
      *
-     * @param int   $int_plurk_id    The plurk ID number to respond to.
-     * @param string $string_lang     The plurk language.
+     * @param int   $int_plurk_id   The plurk ID number to respond to.
+     * @param string $string_lang    The plurk language.
      * @param string $string_qualifier The qualifier to use for this response.
      * @param string $string_content   The content to be posted as a reply.
      *
@@ -1983,7 +1982,7 @@ Class Plurk {
      * Compatible with RLPlurkAPI
      * Get cities.
      *
-     * @param int $int_uid     The user's UID to be passed to the getCities.
+     * @param int $int_uid   The user's UID to be passed to the getCities.
      * @param int $int_region_id The region's ID to be passed to the getCities.
      * @return array The associative array of cities within a region and their details.
      * @todo not implemented yet
@@ -1998,7 +1997,7 @@ Class Plurk {
      * Compatible with RLPlurkAPI
      * Get the regions in a given country.
      *
-     * @param int $int_uid      The user's UID to be passed to the getRegions.
+     * @param int $int_uid    The user's UID to be passed to the getRegions.
      * @param int $int_country_id The country's ID to be passed to the getRegions.
      * @return array The associative array of regions in a country and their details.
      * @todo not implemented yet
@@ -2023,4 +2022,3 @@ Class Plurk {
     }
 
 }
-
