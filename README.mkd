@@ -15,8 +15,8 @@ INSTALLATION
 
 Download all file from this site.
 
-    $ http://github.com/appleboy/CodeIgniter-Plurk-API/archives/master
-    $ git://github.com/appleboy/CodeIgniter-Plurk-API.git
+    $ wget http://github.com/appleboy/CodeIgniter-Plurk-API/archives/master
+    $ git clone git://github.com/appleboy/CodeIgniter-Plurk-API.git
 
 Copy some files into directory.
 
